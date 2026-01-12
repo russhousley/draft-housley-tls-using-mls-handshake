@@ -11,10 +11,10 @@ area: "Security"
 workgroup: "Transport Layer Security"
 venue:
   group: "Transport Layer Security"
-  type: ""
+  type: "Working Group"
   mail: "tls@ietf.org"
   arch: "https://mailarchive.ietf.org/arch/browse/tls/"
-  github: russhousley/draft-housley-tls-using-mls-handshake
+  github: "russhousley/draft-housley-tls-using-mls-handshake"
 
 author:
 - name: Russ Housley
@@ -277,7 +277,7 @@ The TLS client creates its own KeyPackage for inclusion in the ClientHello.
 The KeyPackage includes a cipher suite and any MLS extensions that the
 client desires.
 
-If the TLS server supports MLS handshake, then the TLS server inspects KeyPackage 
+If the TLS server supports MLS handshake, then the TLS server inspects KeyPackage
 from the ClientHello to determine whether the cipher suite is supported and
 acceptable, whether all of the client provided MLS extensions are supported
 and acceptable, and whether the client credential is valid.  If all of these
