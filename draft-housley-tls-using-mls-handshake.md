@@ -11,11 +11,12 @@ area: "Security"
 workgroup: "Transport Layer Security"
 venue:
   group: "Transport Layer Security"
-  type: "Working Group"
+  type: ""
   mail: "tls@ietf.org"
   arch: "https://mailarchive.ietf.org/arch/browse/tls/"
-  github: "russhousley/draft-housley-tls-using-mls-handshake"
-
+  github: russhousley/draft-housley-tls-using-mls-handshake
+  latest: TBD
+  
 author:
 - name: Russ Housley
   org: Vigil Security, LLC
@@ -23,7 +24,7 @@ author:
   email: housley@vigilsec.com
 
 normative:
-  I-D.ietf-tls-rfc8446bis:
+  RFC9846:
   RFC2119:
   RFC8174:
   RFC9420:
@@ -55,21 +56,21 @@ The MLS protocol provides straightforward mechanism to update the
 shared secret that can be initiated by either the client or the server
 during the TLS session, and each epoch provides forward security and
 post-compromise security.
-
+   
 --- middle
 
 # Introduction {#intro}
 
 This document specifies an extension to the Transport Layer Security (TLS)
-Protocol Version 1.3 {{I-D.ietf-tls-rfc8446bis}} that allows TLS clients
-and servers to use the Message Layer Security (MLS) Protocol {{RFC9420}}
-handshake to establish the shared secret. The resulting shared secret is
-used in the TLS key schedule to derive all of the cryptographic keying
-material for the TLS 1.3 protocol. The MLS protocol provides a
-straightforward mechanism to update the shared secret, and either the
-client or the server can initiate the update during the TLS session. The
-period of time during which one shared secret is used is called an epoch.
-An epoch provides forward security and post-compromise security.
+Protocol Version 1.3 {{RFC9846}} that allows TLS clients and servers to
+use the Message Layer Security (MLS) Protocol {{RFC9420}} handshake to
+establish the shared secret.  The resulting shared secret is used in the
+TLS key schedule to derive all of the cryptographic keying material for
+the TLS 1.3 protocol.  The MLS protocol provides a straightforward
+mechanism to update the shared secret, and either the client or the
+server can initiate the update during the TLS session.  The period of
+time during which one shared secret is used is called an epoch.  An epoch
+provides forward security and post-compromise security.
 
 # Terminology {#terms}
 
@@ -221,9 +222,9 @@ negotiate the use of specific extensions.  Clients request extended
 functionality from servers with the extensions field in the
 ClientHello message.  If the server responds with a HelloRetryRequest
 message, then the client sends another ClientHello message as
-described in {{Section 4.1.2 of I-D.ietf-tls-rfc8446bis}}, including
-the same "tls_using_mls_handshake" extension as the original
-ClientHello message, or aborts the handshake.
+described in {{Section 4.1.2 of RFC9846}}, including the same
+"tls_using_mls_handshake" extension as the original ClientHello
+message, or aborts the handshake.
 
 Many server extensions are carried in the EncryptedExtensions
 message; however, the "tls_using_mls_handshake" extension is carried
@@ -233,14 +234,14 @@ only present in the ServerHello message if the server recognizes the
 MLS key management and authentication in lieu of the traditional
 TLS 1.3 key management and authentication.
 
-The Extension structure is defined in {{I-D.ietf-tls-rfc8446bis}}; it
-is repeated here for convenience.
+The Extension structure is defined in {{RFC9846}}; it is repeated
+here for convenience.
 
 ~~~
- struct {
-	 ExtensionType extension_type;
-	 opaque extension_data<0..2^16-1>;
- } Extension;
+   struct {
+     ExtensionType extension_type;
+     opaque extension_data<0..2^16-1>;
+   } Extension;
 ~~~
 
 The "extension_type" identifies the particular extension type, and
@@ -251,9 +252,9 @@ This document specifies the "tls_using_mls_handshake" extension,
 adding one new type to ExtensionType:
 
 ~~~
- enum {
-	 tls_using_mls_handshake(TBD0), (65535)
- } ExtensionType;
+   enum {
+    tls_using_mls_handshake(TBD0), (65535)
+   } ExtensionType;
 ~~~
 
 The "tls_using_mls_handshake" extension is relevant when the client
@@ -265,19 +266,19 @@ defined in {{Section 10 of RFC9420}}. The "tls_using_mls_handshake"
 extension has the following syntax:
 
 ~~~
- struct {
-	 select (Handshake.msg_type) {
-		 case client_hello: KeyPackage;
-		 case server_hello: Welcome;
-	 };
- } TLSUsingMLSHandshake;
+   struct {
+     select (Handshake.msg_type) {
+         case client_hello: KeyPackage;
+         case server_hello: Welcome;
+     };
+   } TLSUsingMLSHandshake;
 ~~~
 
 The TLS client creates its own KeyPackage for inclusion in the ClientHello.
 The KeyPackage includes a cipher suite and any MLS extensions that the
 client desires.
 
-If the TLS server supports MLS handshake, then the TLS server inspects KeyPackage
+If the TLS server supports MLS handshake, then the TLS server inspects KeyPackage 
 from the ClientHello to determine whether the cipher suite is supported and
 acceptable, whether all of the client provided MLS extensions are supported
 and acceptable, and whether the client credential is valid.  If all of these
@@ -294,17 +295,17 @@ this capability, but any MLS handshake message could be carried in this
 TLS handshake message to ensure future compatibility.
 
 ~~~
- enum {
+   enum {
      mls_handshake(TBD1),
-	 (255)
-  } HandshakeType;
+     (255)
+   } HandshakeType;
 ~~~
 
 In the TLS protocol, the "mls_handshake" message encapsulates one
 MLS Handshake message.  The MLSMessage types established by {{RFC9420}} are:
 
 ~~~
- struct {
+   struct {
      ProtocolVersion version = mls10;
      WireFormat wire_format;
      select (MLSMessage.wire_format) {
@@ -319,7 +320,7 @@ MLS Handshake message.  The MLSMessage types established by {{RFC9420}} are:
          case mls_key_package:
              KeyPackage key_package;
      };
- } MLSMessage;
+   } MLSMessage;
 ~~~
 
 Since the TLS environment does not include a Delivery Service, the MLS Commit
@@ -336,8 +337,8 @@ KeyPackage.
 
 Upon successful completion of the MLS handshake, the exporter_secret
 produced by the MLS key schedule is used to derive the TLS shared secret,
-this value is referred to as the "Handshake Secret" in {{I-D.ietf-tls-rfc8446bis}}.
-The TLS shared secret is derived as:
+this value is referred to as the "Handshake Secret" in {{RFC9846}}.  The
+TLS shared secret is derived as:
 
 ~~~
    MLS-Exporter(Label, Context, Length) =
@@ -362,26 +363,57 @@ and the server periodically update the keys that represent them to the
 MLS group by sending a Commit message that includes an Update by value
 for their own LeafNode.  See {{Section 12.1.2 of RFC9420}} for details.
 
+Once the Commit message is sent, some traffic using the previous
+keying material might still be in flight.  Once traffic using the
+new keying material is received, then the stale keying material can
+safely be discarded.
+
+The following illustrates the update of the TLS shared secret.
+
+~~~
+Client                            Server
+(Initiator)                       (Responder)
+
+  /---------------------------------------\
+ |           Initial Handshake             |
+  \---------------------------------------/
+
+[Application Data]N   -------->
+                      <-------- [Application Data]N
+
+  /---------------------------------------\
+ |           Some time later ...           |
+  \---------------------------------------/
+
+[MLS(Commit)]         -------->
+
+                                # no epoch change yet
+                      <-------- [Application Data]N
+                                # confirms epoch change
+                      <-------- [Application Data]N+1
+[Application Data]N+1 -------->
+                      <-------- [Application Data]N+1
+
+Legend:
+
+    []N Indicates messages protected with keys derived from epoch N
+~~~
+
 ## Resumption
 
 After the initial MLS handshake is successfully completed, a session can
-resume with a Commit message that includes an Update by value for their
-own LeafNode.  The recipient of the Commit message looks at the epoch
-value to determine what action to take.
+resume as long as the client and server have retained the MLS group
+state.  The normal TLS 1.3 resumption process is described in
+{{Section 2.2 of RFC9846}}.
 
-If the epoch is equal to its local epoch, discard the Commit message. This
-happens when the previous connection failed before delivering a locally
-generated Commit message.
-
-If the epoch is one higher than the current epoch, apply the Commit message.
-
-If the epoch is two higher than the current epoch, apply the pending Commit message
-and the just received Commit message. This happens when a remotely generated
-Commit message was received but not yet processed when the connection failed.
+To cryptographically separate the resumed session from the original
+session, forward secrecy and post-compromise security, the client or the
+server SHOULD use the procedure in the previous section to update their
+own LeafNode.
 
 # Security Considerations
 
-The security considerations in {{I-D.ietf-tls-rfc8446bis}} and {{RFC9420}} apply.
+The security considerations in {{RFC9846}} and {{RFC9420}} apply.
 
 # IANA Considerations
 
@@ -403,4 +435,5 @@ Reference to this document (once it is published as an RFC).
 # Acknowledgments
 {:numbered="false"}
 
-Thanks to Sean Turner and Raphael Robert for reviewing the document and providing comments.
+Thanks to Sean Turner, Raphael Robert, and Konrad Kohbrok for providing constructive
+comments.
