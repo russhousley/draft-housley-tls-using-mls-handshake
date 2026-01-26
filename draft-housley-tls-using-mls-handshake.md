@@ -24,10 +24,28 @@ author:
   email: housley@vigilsec.com
 
 normative:
-  RFC9846:
   RFC2119:
   RFC8174:
   RFC9420:
+  RFC9846:
+    title: "The Transport Layer Security (TLS) Protocol Version 1.3"
+    author:
+      name: Eric Rescorla
+      ins: E. Rescorla
+      org: Independent
+    date: 2026-01
+    seriesinfo:
+       RFC: 9846
+  I-D.kohbrok-mls-two-party-profile:
+    title: "A two-party profile for MLS"
+    author:
+    - name: Konrad Kohbrok
+      org: Phoenix R&D
+      email: konrad@ratchet.ing
+    - name: Raphael Robert
+      org: Phoenix R&D
+      email: ietf@raphaelrobert.com
+    date: 2026-01-25
 
 informative:
   IANA-MLS-EL:
@@ -83,7 +101,7 @@ capitals, as shown here.
 # Motivation and Design Rationale {#rationale}
 
 There are operational motivations and security motivations for using the
-MLS handshake for TLS shared secret management.
+MLS handshake to manage TLS shared secrets.
 
 An operational motivation is the straightforward mechanism for shared
 secret update that can be initiated by either the client or the server.
@@ -115,7 +133,8 @@ communicating peer was compromised at some point in the past.
 Forward secrecy between epochs is provided by deleting private keys from
 past versions of the MLS ratchet tree, as this prevents old session
 secrets from being re-derived.  Forward secrecy within an epoch is
-possible with the MLS protocol, but that feature is not supported in TLS.
+possible with the MLS protocol, but that feature is not currently
+supported in TLS.
 
 Post-compromise security (PCS) is provided between epochs by the client
 or server regularly updating their leaf key in the MLS ratchet tree.
@@ -127,6 +146,9 @@ Note that a client or server sending an update of the keying material
 for their LeafNode does not achieve PCS until the peer processes the
 MLS Commit.  That is, the PCS guarantees come into effect when the peer
 processes the relevant Commit, not when the sender creates it.
+
+This specification makes use of the two-party profile for MLS that is
+defined in {{I-D.kohbrok-mls-two-party-profile}}.
 
 # Extension Overview {#overview}
 
@@ -253,7 +275,8 @@ adding one new type to ExtensionType:
 
 ~~~
    enum {
-    tls_using_mls_handshake(TBD0), (65535)
+    tls_using_mls_handshake(TBD0),
+    (65535)
    } ExtensionType;
 ~~~
 
@@ -301,27 +324,28 @@ TLS handshake message to ensure future compatibility.
    } HandshakeType;
 ~~~
 
-In the TLS protocol, the "mls_handshake" message encapsulates one
-MLS Handshake message.  The MLSMessage types established by {{RFC9420}} are:
+In the TLS protocol, the "mls_handshake" message encapsulates one of the
+MLS Handshake messages specified in {{I-D.kohbrok-mls-two-party-profile}}
+for key update or resumption.  The TwoPartyMLSMessage types are:
 
 ~~~
    struct {
      ProtocolVersion version = mls10;
-     WireFormat wire_format;
-     select (MLSMessage.wire_format) {
-         case mls_public_message:
-             PublicMessage public_message;
-         case mls_private_message:
-             PrivateMessage private_message;
-         case mls_welcome:
-             Welcome welcome;
-         case mls_group_info:
-             GroupInfo group_info;
-         case mls_key_package:
-             KeyPackage key_package;
+     uint16 tpmlsmt;
+     select (TwoPartyMLSMessage.tpmlsmt) {
+         case mls_connection_update:
+             Update update;
+         case mls_epoch_key_update:
+             uint64 epoch;
+         case mls_resumption_request:
+             Commit commit;
+         case mls_resumption_response:
+             Commit commit;
      };
-   } MLSMessage;
+   } TwoPartyMLSMessage;
 ~~~
+
+The format for each message is defined in {{RFC9420}}.
 
 Since the TLS environment does not include a Delivery Service, the MLS Commit
 message MUST contain the proposal to be applied by value as specified in
@@ -374,22 +398,23 @@ The following illustrates the update of the TLS shared secret.
 Client                            Server
 (Initiator)                       (Responder)
 
-  /---------------------------------------\
- |           Initial Handshake             |
-  \---------------------------------------/
+  /------------------------------------------\
+ |            Initial Handshake               |
+  \------------------------------------------/
 
 [Application Data]N   -------->
                       <-------- [Application Data]N
 
-  /---------------------------------------\
- |           Some time later ...           |
-  \---------------------------------------/
+  /------------------------------------------\
+ |             Some time later ...            |
+  \------------------------------------------/
 
-[MLS(Commit)]         -------->
+MLS(Update)           -------->
 
                                 # no epoch change yet
                       <-------- [Application Data]N
                                 # confirms epoch change
+                      <-------- MLS(epoch=N+1)
                       <-------- [Application Data]N+1
 [Application Data]N+1 -------->
                       <-------- [Application Data]N+1
@@ -407,9 +432,45 @@ state.  The normal TLS 1.3 resumption process is described in
 {{Section 2.2 of RFC9846}}.
 
 To cryptographically separate the resumed session from the original
-session, forward secrecy and post-compromise security, the client or the
-server SHOULD use the procedure in the previous section to update their
-own LeafNode.
+session and ensure forward secrecy and post-compromise security, the
+client and the server each update their LeafNode with a Commit message.
+
+If the client had sent a Update before the TLS session was disconnected,
+and the client was waiting for a EpochKeyUpdate, then the client MUST
+use that pending LeafNode as the basis for the Commit message.
+
+If the server had sent a Update before the TLS session was disconnected,
+and the server was waiting for a EpochKeyUpdate, then the server MUST
+use that pending LeafNode as the basis for the Commit message.
+
+The following illustrates the update of the TLS shared secret after resumption.
+
+~~~
+Client                            Server
+(Initiator)                       (Responder)
+
+  /------------------------------------------\
+ |             Initial Handshake              |
+  \------------------------------------------/
+
+[Application Data]N   -------->
+                      <-------- [Application Data]N
+
+  /------------------------------------------\
+ |  Disconnect and resume some time later ... |
+  \------------------------------------------/
+
+MLS(Commit)           -------->
+                      <-------- MLS(Commit)
+                                # confirms epoch changes
+                      <-------- [Application Data]N+2
+[Application Data]N+2 -------->
+                      <-------- [Application Data]N+2
+
+Legend:
+
+    []N Indicates messages protected with keys derived from epoch N
+~~~
 
 # Security Considerations
 
