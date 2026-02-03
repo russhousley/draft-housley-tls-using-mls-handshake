@@ -33,19 +33,10 @@ normative:
       name: Eric Rescorla
       ins: E. Rescorla
       org: Independent
-    date: 2026-01
+    date: 2026-02
     seriesinfo:
        RFC: 9846
   I-D.kohbrok-mls-two-party-profile:
-    title: "A two-party profile for MLS"
-    author:
-    - name: Konrad Kohbrok
-      org: Phoenix R&D
-      email: konrad@ratchet.ing
-    - name: Raphael Robert
-      org: Phoenix R&D
-      email: ietf@raphaelrobert.com
-    date: 2026-01-25
 
 informative:
   IANA-MLS-EL:
@@ -433,15 +424,16 @@ state.  The normal TLS 1.3 resumption process is described in
 
 To cryptographically separate the resumed session from the original
 session and ensure forward secrecy and post-compromise security, the
-client and the server each update their LeafNode with a Commit message.
+client and the server each update their nodes in the MLS ratchet tree
+with a Commit message.
 
 If the client had sent a Update before the TLS session was disconnected,
 and the client was waiting for a EpochKeyUpdate, then the client MUST
-use that pending LeafNode as the basis for the Commit message.
+use that pending Update message as the basis for the Commit message.
 
 If the server had sent a Update before the TLS session was disconnected,
 and the server was waiting for a EpochKeyUpdate, then the server MUST
-use that pending LeafNode as the basis for the Commit message.
+use that pending Update message as the basis for the Commit message.
 
 The following illustrates the update of the TLS shared secret after resumption.
 
