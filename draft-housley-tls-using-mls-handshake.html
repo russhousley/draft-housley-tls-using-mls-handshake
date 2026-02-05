@@ -30,7 +30,7 @@ post-compromise security.
     pycountry 24.6.1
     PyYAML 6.0.3
     requests 2.32.5
-    wcwidth 0.2.14
+    wcwidth 0.3.0
 -->
 <link href="draft-housley-tls-using-mls-handshake.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -571,6 +571,7 @@ aside, blockquote {
 }
 blockquote {
   margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
 }
 cite {
   display: block;
@@ -641,7 +642,7 @@ a.pilcrow {
   }
 }
 @media not print {
-  :hover > a.pilcrow {
+  :hover > a.pilcrow, a.pilcrow:focus {
     opacity: 1;
   }
   a.pilcrow[href]:hover {
@@ -1049,11 +1050,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">Using the MLS Handshake in TLS 1.3</td>
-<td class="right">January 2026</td>
+<td class="right">February 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Housley</td>
-<td class="center">Expires 16 July 2026</td>
+<td class="center">Expires 9 August 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1066,12 +1067,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-housley-tls-using-mls-handshake-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-01-12" class="published">12 January 2026</time>
+<time datetime="2026-02-05" class="published">5 February 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-07-16">16 July 2026</time></dd>
+<dd class="expires"><time datetime="2026-08-09">9 August 2026</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1099,6 +1100,7 @@ post-compromise security.<a href="#section-abstract-1" class="pilcrow">¶</a></p
       </h2>
 <p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-2">
+        The latest revision of this draft can be found at <span><a href="TBD">TBD</a></span>.
         Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-housley-tls-using-mls-handshake/">https://datatracker.ietf.org/doc/draft-housley-tls-using-mls-handshake/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
 <p id="section-note.1-3">
         Discussion of this document takes place on the
@@ -1127,7 +1129,7 @@ post-compromise security.<a href="#section-abstract-1" class="pilcrow">¶</a></p
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 16 July 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 9 August 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1218,15 +1220,15 @@ post-compromise security.<a href="#section-abstract-1" class="pilcrow">¶</a></p
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
 <p id="section-1-1">This document specifies an extension to the Transport Layer Security (TLS)
-Protocol Version 1.3 <span>[<a href="#I-D.ietf-tls-rfc8446bis" class="cite xref">I-D.ietf-tls-rfc8446bis</a>]</span> that allows TLS clients
-and servers to use the Message Layer Security (MLS) Protocol <span>[<a href="#RFC9420" class="cite xref">RFC9420</a>]</span>
-handshake to establish the shared secret. The resulting shared secret is
-used in the TLS key schedule to derive all of the cryptographic keying
-material for the TLS 1.3 protocol. The MLS protocol provides a
-straightforward mechanism to update the shared secret, and either the
-client or the server can initiate the update during the TLS session. The
-period of time during which one shared secret is used is called an epoch.
-An epoch provides forward security and post-compromise security.<a href="#section-1-1" class="pilcrow">¶</a></p>
+Protocol Version 1.3 <span>[<a href="#RFC9846" class="cite xref">RFC9846</a>]</span> that allows TLS clients and servers to
+use the Message Layer Security (MLS) Protocol <span>[<a href="#RFC9420" class="cite xref">RFC9420</a>]</span> handshake to
+establish the shared secret.  The resulting shared secret is used in the
+TLS key schedule to derive all of the cryptographic keying material for
+the TLS 1.3 protocol.  The MLS protocol provides a straightforward
+mechanism to update the shared secret, and either the client or the
+server can initiate the update during the TLS session.  The period of
+time during which one shared secret is used is called an epoch.  An epoch
+provides forward security and post-compromise security.<a href="#section-1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="terms">
@@ -1247,7 +1249,7 @@ capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
 <a href="#section-3" class="section-number selfRef">3. </a><a href="#name-motivation-and-design-ratio" class="section-name selfRef">Motivation and Design Rationale</a>
       </h2>
 <p id="section-3-1">There are operational motivations and security motivations for using the
-MLS handshake for TLS shared secret management.<a href="#section-3-1" class="pilcrow">¶</a></p>
+MLS handshake to manage TLS shared secrets.<a href="#section-3-1" class="pilcrow">¶</a></p>
 <p id="section-3-2">An operational motivation is the straightforward mechanism for shared
 secret update that can be initiated by either the client or the server.
 The initial shared secret is based on the client KeyPackage and the
@@ -1275,7 +1277,8 @@ communicating peer was compromised at some point in the past.<a href="#section-3
 <p id="section-3-5">Forward secrecy between epochs is provided by deleting private keys from
 past versions of the MLS ratchet tree, as this prevents old session
 secrets from being re-derived.  Forward secrecy within an epoch is
-possible with the MLS protocol, but that feature is not supported in TLS.<a href="#section-3-5" class="pilcrow">¶</a></p>
+possible with the MLS protocol, but that feature is not currently
+supported in TLS.<a href="#section-3-5" class="pilcrow">¶</a></p>
 <p id="section-3-6">Post-compromise security (PCS) is provided between epochs by the client
 or server regularly updating their leaf key in the MLS ratchet tree.
 Updating their leaf key prevents shared secrets from continuing to be
@@ -1285,6 +1288,8 @@ compromised.<a href="#section-3-6" class="pilcrow">¶</a></p>
 for their LeafNode does not achieve PCS until the peer processes the
 MLS Commit.  That is, the PCS guarantees come into effect when the peer
 processes the relevant Commit, not when the sender creates it.<a href="#section-3-7" class="pilcrow">¶</a></p>
+<p id="section-3-8">This specification makes use of the two-party profile for MLS that is
+defined in <span>[<a href="#I-D.kohbrok-mls-two-party-profile" class="cite xref">I-D.kohbrok-mls-two-party-profile</a>]</span>.<a href="#section-3-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="overview">
@@ -1389,9 +1394,9 @@ negotiate the use of specific extensions.  Clients request extended
 functionality from servers with the extensions field in the
 ClientHello message.  If the server responds with a HelloRetryRequest
 message, then the client sends another ClientHello message as
-described in <span><a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-rfc8446bis-14#section-4.1.2" class="relref">Section 4.1.2</a> of [<a href="#I-D.ietf-tls-rfc8446bis" class="cite xref">I-D.ietf-tls-rfc8446bis</a>]</span>, including
-the same "tls_using_mls_handshake" extension as the original
-ClientHello message, or aborts the handshake.<a href="#section-5-2" class="pilcrow">¶</a></p>
+described in <span><a href="https://rfc-editor.org/rfc/rfc9846#section-4.1.2" class="relref">Section 4.1.2</a> of [<a href="#RFC9846" class="cite xref">RFC9846</a>]</span>, including the same
+"tls_using_mls_handshake" extension as the original ClientHello
+message, or aborts the handshake.<a href="#section-5-2" class="pilcrow">¶</a></p>
 <p id="section-5-3">Many server extensions are carried in the EncryptedExtensions
 message; however, the "tls_using_mls_handshake" extension is carried
 in the ServerHello message.  The "tls_using_mls_handshake" extension is
@@ -1399,14 +1404,14 @@ only present in the ServerHello message if the server recognizes the
 "tls_using_mls_handshake" extension and the server is willing to use
 MLS key management and authentication in lieu of the traditional
 TLS 1.3 key management and authentication.<a href="#section-5-3" class="pilcrow">¶</a></p>
-<p id="section-5-4">The Extension structure is defined in <span>[<a href="#I-D.ietf-tls-rfc8446bis" class="cite xref">I-D.ietf-tls-rfc8446bis</a>]</span>; it
-is repeated here for convenience.<a href="#section-5-4" class="pilcrow">¶</a></p>
+<p id="section-5-4">The Extension structure is defined in <span>[<a href="#RFC9846" class="cite xref">RFC9846</a>]</span>; it is repeated
+here for convenience.<a href="#section-5-4" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-5-5">
 <pre>
- struct {
-         ExtensionType extension_type;
-         opaque extension_data&lt;0..2^16-1&gt;;
- } Extension;
+   struct {
+     ExtensionType extension_type;
+     opaque extension_data&lt;0..2^16-1&gt;;
+   } Extension;
 </pre><a href="#section-5-5" class="pilcrow">¶</a>
 </div>
 <p id="section-5-6">The "extension_type" identifies the particular extension type, and
@@ -1416,9 +1421,10 @@ extension type.<a href="#section-5-6" class="pilcrow">¶</a></p>
 adding one new type to ExtensionType:<a href="#section-5-7" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-5-8">
 <pre>
- enum {
-         tls_using_mls_handshake(TBD0), (65535)
- } ExtensionType;
+   enum {
+    tls_using_mls_handshake(TBD0),
+    (65535)
+   } ExtensionType;
 </pre><a href="#section-5-8" class="pilcrow">¶</a>
 </div>
 <p id="section-5-9">The "tls_using_mls_handshake" extension is relevant when the client
@@ -1430,18 +1436,18 @@ defined in <span><a href="https://rfc-editor.org/rfc/rfc9420#section-10" class="
 extension has the following syntax:<a href="#section-5-9" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-5-10">
 <pre>
- struct {
-         select (Handshake.msg_type) {
-                 case client_hello: KeyPackage;
-                 case server_hello: Welcome;
-         };
- } TLSUsingMLSHandshake;
+   struct {
+     select (Handshake.msg_type) {
+         case client_hello: KeyPackage;
+         case server_hello: Welcome;
+     };
+   } TLSUsingMLSHandshake;
 </pre><a href="#section-5-10" class="pilcrow">¶</a>
 </div>
 <p id="section-5-11">The TLS client creates its own KeyPackage for inclusion in the ClientHello.
 The KeyPackage includes a cipher suite and any MLS extensions that the
 client desires.<a href="#section-5-11" class="pilcrow">¶</a></p>
-<p id="section-5-12">If the TLS server supports MLS handshake, then the TLS server inspects KeyPackage 
+<p id="section-5-12">If the TLS server supports MLS handshake, then the TLS server inspects KeyPackage
 from the ClientHello to determine whether the cipher suite is supported and
 acceptable, whether all of the client provided MLS extensions are supported
 and acceptable, and whether the client credential is valid.  If all of these
@@ -1462,37 +1468,39 @@ this capability, but any MLS handshake message could be carried in this
 TLS handshake message to ensure future compatibility.<a href="#section-6-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6-2">
 <pre>
- enum {
+   enum {
      mls_handshake(TBD1),
-         (255)
-  } HandshakeType;
+     (255)
+   } HandshakeType;
 </pre><a href="#section-6-2" class="pilcrow">¶</a>
 </div>
-<p id="section-6-3">In the TLS protocol, the "mls_handshake" message encapsulates one
-MLS Handshake message.  The MLSMessage types established by <span>[<a href="#RFC9420" class="cite xref">RFC9420</a>]</span> are:<a href="#section-6-3" class="pilcrow">¶</a></p>
+<p id="section-6-3">In the TLS protocol, the "mls_handshake" message encapsulates one of the
+MLS Handshake messages specified in <span>[<a href="#I-D.kohbrok-mls-two-party-profile" class="cite xref">I-D.kohbrok-mls-two-party-profile</a>]</span>
+for key update or resumption.  When updating the keying material in the
+MLS LeafNode, the Commit message MUST include the update by value.  The
+TwoPartyMLSMessage types are:<a href="#section-6-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6-4">
 <pre>
- struct {
+   struct {
      ProtocolVersion version = mls10;
-     WireFormat wire_format;
-     select (MLSMessage.wire_format) {
-         case mls_public_message:
-             PublicMessage public_message;
-         case mls_private_message:
-             PrivateMessage private_message;
-         case mls_welcome:
-             Welcome welcome;
-         case mls_group_info:
-             GroupInfo group_info;
-         case mls_key_package:
-             KeyPackage key_package;
+     uint16 tpmlsmt;
+     select (TwoPartyMLSMessage.tpmlsmt) {
+         case mls_connection_update:
+             Commit commit;
+         case mls_epoch_key_update:
+             uint64 epoch;
+         case mls_resumption_request:
+             Commit commit;
+         case mls_resumption_response:
+             Commit commit;
      };
- } MLSMessage;
+   } TwoPartyMLSMessage;
 </pre><a href="#section-6-4" class="pilcrow">¶</a>
 </div>
-<p id="section-6-5">Since the TLS environment does not include a Delivery Service, the MLS Commit
+<p id="section-6-5">The format for each message is defined in <span>[<a href="#RFC9420" class="cite xref">RFC9420</a>]</span>.<a href="#section-6-5" class="pilcrow">¶</a></p>
+<p id="section-6-6">Since the TLS environment does not include a Delivery Service, the MLS Commit
 message MUST contain the proposal to be applied by value as specified in
-<span><a href="https://rfc-editor.org/rfc/rfc9420#section-12.4" class="relref">Section 12.4</a> of [<a href="#RFC9420" class="cite xref">RFC9420</a>]</span>.<a href="#section-6-5" class="pilcrow">¶</a></p>
+<span><a href="https://rfc-editor.org/rfc/rfc9420#section-12.4" class="relref">Section 12.4</a> of [<a href="#RFC9420" class="cite xref">RFC9420</a>]</span>.<a href="#section-6-6" class="pilcrow">¶</a></p>
 <div id="establishing-the-initial-tls-shared-secret-with-mls">
 <section id="section-6.1">
         <h3 id="name-establishing-the-initial-tl">
@@ -1505,8 +1513,8 @@ The Welcome can include any MLS extensions that are supported by the client
 KeyPackage.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
 <p id="section-6.1-2">Upon successful completion of the MLS handshake, the exporter_secret
 produced by the MLS key schedule is used to derive the TLS shared secret,
-this value is referred to as the "Handshake Secret" in <span>[<a href="#I-D.ietf-tls-rfc8446bis" class="cite xref">I-D.ietf-tls-rfc8446bis</a>]</span>.
-The TLS shared secret is derived as:<a href="#section-6.1-2" class="pilcrow">¶</a></p>
+this value is referred to as the "Handshake Secret" in <span>[<a href="#RFC9846" class="cite xref">RFC9846</a>]</span>.  The
+TLS shared secret is derived as:<a href="#section-6.1-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-6.1-3">
 <pre>
    MLS-Exporter(Label, Context, Length) =
@@ -1533,6 +1541,42 @@ compute a new TLS key schedule.<a href="#section-6.2-1" class="pilcrow">¶</a></
 and the server periodically update the keys that represent them to the
 MLS group by sending a Commit message that includes an Update by value
 for their own LeafNode.  See <span><a href="https://rfc-editor.org/rfc/rfc9420#section-12.1.2" class="relref">Section 12.1.2</a> of [<a href="#RFC9420" class="cite xref">RFC9420</a>]</span> for details.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
+<p id="section-6.2-3">Once the Commit message is sent, some traffic using the previous
+keying material might still be in flight.  Once traffic using the
+new keying material is received, then the stale keying material can
+safely be discarded.<a href="#section-6.2-3" class="pilcrow">¶</a></p>
+<p id="section-6.2-4">The following illustrates the update of the TLS shared secret.<a href="#section-6.2-4" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6.2-5">
+<pre>
+Client                            Server
+(Initiator)                       (Responder)
+
+  /------------------------------------------\
+ |            Initial Handshake               |
+  \------------------------------------------/
+
+[Application Data]N    --------&gt;
+                       &lt;-------- [Application Data]N
+
+  /------------------------------------------\
+ |             Some time later ...            |
+  \------------------------------------------/
+
+mls_connection_update  --------&gt;
+
+                                 # no epoch change yet
+                       &lt;-------- [Application Data]N
+                                 # confirms epoch change
+                       &lt;-------- mls_epoch_key_update=N+1
+                       &lt;-------- [Application Data]N+1
+[Application Data]N+1  --------&gt;
+                       &lt;-------- [Application Data]N+1
+
+Legend:
+
+    []N Indicates messages protected with keys derived from epoch N
+</pre><a href="#section-6.2-5" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 <div id="resumption">
@@ -1541,16 +1585,48 @@ for their own LeafNode.  See <span><a href="https://rfc-editor.org/rfc/rfc9420#s
 <a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-resumption" class="section-name selfRef">Resumption</a>
         </h3>
 <p id="section-6.3-1">After the initial MLS handshake is successfully completed, a session can
-resume with a Commit message that includes an Update by value for their
-own LeafNode.  The recipient of the Commit message looks at the epoch
-value to determine what action to take.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
-<p id="section-6.3-2">If the epoch is equal to its local epoch, discard the Commit message. This
-happens when the previous connection failed before delivering a locally
-generated Commit message.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
-<p id="section-6.3-3">If the epoch is one higher than the current epoch, apply the Commit message.<a href="#section-6.3-3" class="pilcrow">¶</a></p>
-<p id="section-6.3-4">If the epoch is two higher than the current epoch, apply the pending Commit message
-and the just received Commit message. This happens when a remotely generated
-Commit message was received but not yet processed when the connection failed.<a href="#section-6.3-4" class="pilcrow">¶</a></p>
+resume as long as the client and server have retained the MLS group
+state.  The normal TLS 1.3 resumption process is described in
+<span><a href="https://rfc-editor.org/rfc/rfc9846#section-2.2" class="relref">Section 2.2</a> of [<a href="#RFC9846" class="cite xref">RFC9846</a>]</span>.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.3-2">To cryptographically separate the resumed session from the original
+session and ensure forward secrecy and post-compromise security, the
+client and the server each update their nodes in the MLS ratchet tree
+with a Commit message.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
+<p id="section-6.3-3">If the client had sent a Update before the TLS session was disconnected,
+and the client was waiting for a EpochKeyUpdate, then the client MUST
+use that pending Update message as the basis for the Commit message.<a href="#section-6.3-3" class="pilcrow">¶</a></p>
+<p id="section-6.3-4">If the server had sent a Update before the TLS session was disconnected,
+and the server was waiting for a EpochKeyUpdate, then the server MUST
+use that pending Update message as the basis for the Commit message.<a href="#section-6.3-4" class="pilcrow">¶</a></p>
+<p id="section-6.3-5">The following illustrates the update of the TLS shared secret after resumption.<a href="#section-6.3-5" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6.3-6">
+<pre>
+Client                            Server
+(Initiator)                       (Responder)
+
+  /------------------------------------------\
+ |             Initial Handshake              |
+  \------------------------------------------/
+
+[Application Data]N    --------&gt;
+                       &lt;-------- [Application Data]N
+
+  /------------------------------------------\
+ |  Disconnect and resume some time later ... |
+  \------------------------------------------/
+
+mls_resumption_request --------&gt;
+                       &lt;-------- mls_resumption_response
+                                 # confirms epoch changes
+                       &lt;-------- [Application Data]N+2
+[Application Data]N+2  --------&gt;
+                       &lt;-------- [Application Data]N+2
+
+Legend:
+
+    []N Indicates messages protected with keys derived from epoch N
+</pre><a href="#section-6.3-6" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 </section>
@@ -1560,7 +1636,7 @@ Commit message was received but not yet processed when the connection failed.<a 
       <h2 id="name-security-considerations">
 <a href="#section-7" class="section-number selfRef">7. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-7-1">The security considerations in <span>[<a href="#I-D.ietf-tls-rfc8446bis" class="cite xref">I-D.ietf-tls-rfc8446bis</a>]</span> and <span>[<a href="#RFC9420" class="cite xref">RFC9420</a>]</span> apply.<a href="#section-7-1" class="pilcrow">¶</a></p>
+<p id="section-7-1">The security considerations in <span>[<a href="#RFC9846" class="cite xref">RFC9846</a>]</span> and <span>[<a href="#RFC9420" class="cite xref">RFC9420</a>]</span> apply.<a href="#section-7-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
@@ -1591,9 +1667,9 @@ Reference to this document (once it is published as an RFC).<a href="#section-8-
 <a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
         </h3>
 <dl class="references">
-<dt id="I-D.ietf-tls-rfc8446bis">[I-D.ietf-tls-rfc8446bis]</dt>
+<dt id="I-D.kohbrok-mls-two-party-profile">[I-D.kohbrok-mls-two-party-profile]</dt>
         <dd>
-<span class="refAuthor">Rescorla, E.</span>, <span class="refTitle">"The Transport Layer Security (TLS) Protocol Version 1.3"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-tls-rfc8446bis-14</span>, <time datetime="2025-09-13" class="refDate">13 September 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-tls-rfc8446bis-14">https://datatracker.ietf.org/doc/html/draft-ietf-tls-rfc8446bis-14</a>&gt;</span>. </dd>
+<span class="refAuthor">Kohbrok, K.</span> and <span class="refAuthor">R. Robert</span>, <span class="refTitle">"A two-party profile for MLS"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-kohbrok-mls-two-party-profile-00</span>, <time datetime="2026-02-03" class="refDate">3 February 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-kohbrok-mls-two-party-profile-00">https://datatracker.ietf.org/doc/html/draft-kohbrok-mls-two-party-profile-00</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
         <dd>
@@ -1604,8 +1680,12 @@ Reference to this document (once it is published as an RFC).<a href="#section-8-
 <span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9420">[RFC9420]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Beurdouche, B.</span>, <span class="refAuthor">Robert, R.</span>, <span class="refAuthor">Millican, J.</span>, <span class="refAuthor">Omara, E.</span>, and <span class="refAuthor">K. Cohn-Gordon</span>, <span class="refTitle">"The Messaging Layer Security (MLS) Protocol"</span>, <span class="seriesInfo">RFC 9420</span>, <span class="seriesInfo">DOI 10.17487/RFC9420</span>, <time datetime="2023-07" class="refDate">July 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9420">https://www.rfc-editor.org/rfc/rfc9420</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9846">[RFC9846]</dt>
+      <dd>
+<span class="refAuthor">Rescorla, E.</span>, <span class="refTitle">"The Transport Layer Security (TLS) Protocol Version 1.3"</span>, <span class="seriesInfo">RFC 9846</span>, <time datetime="2026-02" class="refDate">February 2026</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9846">https://www.rfc-editor.org/rfc/rfc9846</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
@@ -1638,7 +1718,8 @@ Reference to this document (once it is published as an RFC).<a href="#section-8-
       <h2 id="name-acknowledgments">
 <a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
       </h2>
-<p id="appendix-A-1">Thanks to Sean Turner and Raphael Robert for reviewing the document and providing comments.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<p id="appendix-A-1">Thanks to Sean Turner, Raphael Robert, and Konrad Kohbrok for providing constructive
+comments.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authors-addresses">
