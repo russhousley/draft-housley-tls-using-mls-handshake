@@ -16,7 +16,7 @@ venue:
   arch: "https://mailarchive.ietf.org/arch/browse/tls/"
   github: russhousley/draft-housley-tls-using-mls-handshake
   latest: TBD
-  
+
 author:
 - name: Russ Housley
   org: Vigil Security, LLC
@@ -65,7 +65,7 @@ The MLS protocol provides straightforward mechanism to update the
 shared secret that can be initiated by either the client or the server
 during the TLS session, and each epoch provides forward security and
 post-compromise security.
-   
+
 --- middle
 
 # Introduction {#intro}
