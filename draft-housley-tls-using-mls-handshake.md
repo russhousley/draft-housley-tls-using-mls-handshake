@@ -317,7 +317,9 @@ TLS handshake message to ensure future compatibility.
 
 In the TLS protocol, the "mls_handshake" message encapsulates one of the
 MLS Handshake messages specified in {{I-D.kohbrok-mls-two-party-profile}}
-for key update or resumption.  The TwoPartyMLSMessage types are:
+for key update or resumption.  When updating the keying material in the
+MLS LeafNode, the Commit message MUST include the update by value.  The
+TwoPartyMLSMessage types are:
 
 ~~~
    struct {
@@ -325,7 +327,7 @@ for key update or resumption.  The TwoPartyMLSMessage types are:
      uint16 tpmlsmt;
      select (TwoPartyMLSMessage.tpmlsmt) {
          case mls_connection_update:
-             Update update;
+             Commit commit;
          case mls_epoch_key_update:
              uint64 epoch;
          case mls_resumption_request:
@@ -393,22 +395,22 @@ Client                            Server
  |            Initial Handshake               |
   \------------------------------------------/
 
-[Application Data]N   -------->
-                      <-------- [Application Data]N
+[Application Data]N    -------->
+                       <-------- [Application Data]N
 
   /------------------------------------------\
  |             Some time later ...            |
   \------------------------------------------/
 
-MLS(Update)           -------->
+mls_connection_update  -------->
 
-                                # no epoch change yet
-                      <-------- [Application Data]N
-                                # confirms epoch change
-                      <-------- MLS(epoch=N+1)
-                      <-------- [Application Data]N+1
-[Application Data]N+1 -------->
-                      <-------- [Application Data]N+1
+                                 # no epoch change yet
+                       <-------- [Application Data]N
+                                 # confirms epoch change
+                       <-------- mls_epoch_key_update=N+1
+                       <-------- [Application Data]N+1
+[Application Data]N+1  -------->
+                       <-------- [Application Data]N+1
 
 Legend:
 
@@ -445,19 +447,19 @@ Client                            Server
  |             Initial Handshake              |
   \------------------------------------------/
 
-[Application Data]N   -------->
-                      <-------- [Application Data]N
+[Application Data]N    -------->
+                       <-------- [Application Data]N
 
   /------------------------------------------\
  |  Disconnect and resume some time later ... |
   \------------------------------------------/
 
-MLS(Commit)           -------->
-                      <-------- MLS(Commit)
-                                # confirms epoch changes
-                      <-------- [Application Data]N+2
-[Application Data]N+2 -------->
-                      <-------- [Application Data]N+2
+mls_resumption_request -------->
+                       <-------- mls_resumption_response
+                                 # confirms epoch changes
+                       <-------- [Application Data]N+2
+[Application Data]N+2  -------->
+                       <-------- [Application Data]N+2
 
 Legend:
 
